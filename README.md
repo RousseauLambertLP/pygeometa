@@ -82,7 +82,7 @@ pygeometa generate_metadata --mcf=path/to/file.yml --schema=iso19139 --output=so
 pygeometa generate_metadata --mcf=path/to/file.yml --schema=iso19139 --output=some_file.xml --verbosity=DEBUG # add verbose (ERROR, WARNING, INFO, DEBUG)
 # to use your own defined schema:
 pygeometa generate_metadata --mcf=path/to/file.yml --schema_local=/path/to/my-schema --output=some_file.xml  # to file
-# to process all yaml file in a folder. The output file will keep the same name as the input file but will be exported in xml
+# to process all yaml files in a folder. The output files will keep the same name as the input files but will be exported in xml
 pygeometa generate_metadata --mcf=path/to/folder --schema=iso19139 --output=/some/folder --batch
 ```
 
