@@ -286,11 +286,15 @@ def get_abspath(mcf, filepath):
 
 @click.command()
 @click.pass_context
+@click.option('--batch', is_flag=True, 
+              help='Will use and process mcf input as a folder instead of file')
 @click.option('--mcf',
               type=click.Path(exists=True, resolve_path=True),
               help='Path to metadata control file (.yml)')
-@click.option('--output', type=click.File('w', encoding='utf-8'),
-              help='Name of output file')
+#@click.option('--output', type=click.File('w', encoding='utf-8'),
+              #help='Name of output file')
+@click.option('--output', type=click.Path(resolve_path=True),
+              help='Name of output file / folder')
 @click.option('--schema',
               type=click.Choice(get_supported_schemas()),
               help='Metadata schema')
@@ -300,7 +304,7 @@ def get_abspath(mcf, filepath):
               help='Locally defined metadata schema')
 @click.option('--verbosity', type=click.Choice(['ERROR', 'WARNING',
               'INFO', 'DEBUG']), help='Verbosity')
-def generate_metadata(ctx, mcf, schema, schema_local, output, verbosity):
+def generate_metadata(ctx, batch, mcf, schema, schema_local, output, verbosity):
     """generate metadata"""
 
     if verbosity is not None:
@@ -308,6 +312,20 @@ def generate_metadata(ctx, mcf, schema, schema_local, output, verbosity):
 
     if mcf is None or (schema is None and schema_local is None):
         raise click.UsageError('Missing arguments')
+    if batch:
+        for file_ in os.listdir(mcf):
+            if file_.endswith('.yml'):
+                in_file_ = os.path.join(mcf, file_)
+                LOGGER.info('Processing {} into {}'.format(in_file_, schema))
+                content = render_template(in_file_, schema=schema,
+                                  schema_local=schema_local)
+                if output is None:
+                    click.echo_via_pager(content)
+                else:
+                    str_output = str(output)
+                    out_file_ = str(str_output) + '/' + file_.replace('.yml', '.xml')
+                    out_file_ = open(str(out_file_), 'w')
+                    out_file_.write(content)
     else:
         LOGGER.info('Processing {} into {}'.format(mcf, schema))
         content = render_template(mcf, schema=schema,
@@ -315,4 +333,5 @@ def generate_metadata(ctx, mcf, schema, schema_local, output, verbosity):
         if output is None:
             click.echo_via_pager(content)
         else:
+            output = open(output, 'w')
             output.write(content)
